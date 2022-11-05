@@ -1,0 +1,12 @@
+bin/
+obj/
+/packages/
+.vs
+.vscode
+.idea
+/_ReSharper.Caches/
+tmp/
+/*.DotSettings.user
+
+*.log
+log*.txt
