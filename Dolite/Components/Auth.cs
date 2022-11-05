@@ -1,3 +1,4 @@
+using Dolite.Utils;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
@@ -9,14 +10,11 @@ namespace Dolite.Components;
 public class AuthComponent : DoliteComponent
 {
     private readonly Action<AuthorizationOptions>? _authorizationConfig;
-    private readonly SecurityKey _privateKey;
     private readonly SecurityKey _publicKey;
 
-    public AuthComponent(SecurityKey privateKey, SecurityKey publicKey,
-        Action<AuthorizationOptions>? authorizationConfig = null)
+    public AuthComponent(SecurityKey publicKey, Action<AuthorizationOptions>? authorizationConfig = null)
     {
         _publicKey = publicKey;
-        _privateKey = privateKey;
         _authorizationConfig = authorizationConfig;
     }
 
@@ -48,9 +46,9 @@ public class AuthComponent : DoliteComponent
 
 public static class AuthComponentExtensions
 {
-    public static DoliteBuilder UseAuth(this DoliteBuilder builder, SecurityKey[] keys)
+    public static DoliteBuilder UseAuth(this DoliteBuilder builder, string keyName)
     {
-        var component = new AuthComponent(keys[0], keys[1]);
+        var component = new AuthComponent(KeyManager.Public(keyName));
         return builder.AddComponent(component);
     }
 }
