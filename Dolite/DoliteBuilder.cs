@@ -1,17 +1,19 @@
 using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.Configuration;
 
 namespace Dolite;
 
 public class DoliteBuilder
 {
     private readonly WebApplicationBuilder _builder;
-
     private readonly Dictionary<Type, DoliteComponent> _components = new();
 
     internal DoliteBuilder(WebApplicationBuilder builder)
     {
         _builder = builder;
     }
+
+    public IConfiguration Configuration => _builder.Configuration;
 
     public static DoliteBuilder Init(string[] args)
     {
