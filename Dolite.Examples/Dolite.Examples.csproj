@@ -7,15 +7,15 @@
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-        <DocumentationFile>bin\Debug\net6.0\Dolite.Demo.xml</DocumentationFile>
+        <DocumentationFile>bin\Debug\net6.0\Dolite.Examples.xml</DocumentationFile>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-        <DocumentationFile>bin\Release\net6.0\Dolite.Demo.xml</DocumentationFile>
+        <DocumentationFile>bin\Release\net6.0\Dolite.Examples.xml</DocumentationFile>
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Dolite\Dolite.csproj" />
+        <ProjectReference Include="..\Dolite\Dolite.csproj"/>
     </ItemGroup>
 
 </Project>

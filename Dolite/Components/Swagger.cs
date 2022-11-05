@@ -72,7 +72,8 @@ public class SwaggerComponent : DoliteComponent
 
 public static class SwaggerComponentExtensions
 {
-    public static DoliteBuilder UseSwagger(this DoliteBuilder builder, Assembly assembly, OpenApiInfo? openApiInfo = null)
+    public static DoliteBuilder UseSwagger(this DoliteBuilder builder, Assembly assembly,
+        OpenApiInfo? openApiInfo = null)
     {
         var component = new SwaggerComponent(assembly, openApiInfo, builder.HasComponent<AuthComponent>());
         return builder.AddComponent(component);

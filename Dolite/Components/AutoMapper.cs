@@ -1,3 +1,4 @@
+using System.Reflection;
 using AutoMapper;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
@@ -6,25 +7,25 @@ namespace Dolite.Components;
 
 public class AutoMapperComponent : DoliteComponent
 {
-    public AutoMapperComponent(IEnumerable<Action<IMapperConfigurationExpression>> configActions)
+    public AutoMapperComponent(IEnumerable<Assembly> assemblies)
     {
-        ConfigActions = configActions.ToList();
+        Assemblies = assemblies.ToList();
     }
 
-    public List<Action<IMapperConfigurationExpression>> ConfigActions { get; }
+    public List<Assembly> Assemblies { get; }
 
     public override void BeforeBuild(WebApplicationBuilder builder)
     {
-        ConfigActions.ForEach(action => builder.Services.AddAutoMapper(action));
+        Assemblies.ForEach(assembly => builder.Services.AddAutoMapper(assembly));
     }
 }
 
 public static class AutoMapperComponentExtensions
 {
     public static DoliteBuilder UseAutoMapper(this DoliteBuilder builder,
-        params Action<IMapperConfigurationExpression>[] configActions)
+        params Assembly[] assemblies)
     {
-        var component = new AutoMapperComponent(configActions);
+        var component = new AutoMapperComponent(assemblies);
         return builder.AddComponent(component);
     }
 }
