@@ -1,4 +1,5 @@
 using System.Net.Mime;
+using Dolite.Exceptions;
 using Dolite.Utils;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics;
@@ -61,16 +62,4 @@ public static class ErrorHandlerComponentExtensions
         var component = new ErrorHandlerComponent();
         return builder.AddComponent(component);
     }
-}
-
-public class BusinessException : Exception
-{
-    public BusinessException(int errCode, string errMsg) : base($"{errCode}: {errMsg}")
-    {
-        ErrCode = errCode;
-        ErrMsg = errMsg;
-    }
-
-    public int ErrCode { get; }
-    public string ErrMsg { get; }
 }

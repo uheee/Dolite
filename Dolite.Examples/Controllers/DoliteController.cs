@@ -1,5 +1,5 @@
 using AutoMapper;
-using Dolite.Components;
+using Dolite.Exceptions;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Dolite.Examples.Controllers;
