@@ -1,6 +1,7 @@
 using System.Reflection;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
+using Dolite.Utils;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc;
 using Module = Autofac.Module;
@@ -21,6 +22,11 @@ public class AutofacComponent : DoliteComponent
         builder.Host.UseServiceProviderFactory(new AutofacServiceProviderFactory());
         builder.Host.ConfigureContainer<ContainerBuilder>((_, b) =>
             ConfigActions.ForEach(action => action(b)));
+    }
+
+    public void AddConfig(Action<ContainerBuilder> action)
+    {
+        ConfigActions.Add(action);
     }
 }
 
@@ -57,6 +63,9 @@ public class AwesomeModule : Module
         builder.RegisterAssemblyTypes(_assembly)
             .Where(type => type.Name.EndsWith("Impl"))
             .AsImplementedInterfaces()
+            .PropertiesAutowired();
+        builder.RegisterType<ExceptionFactory>()
+            .AsSelf()
             .PropertiesAutowired();
     }
 }

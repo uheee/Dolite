@@ -1,5 +1,4 @@
-using AutoMapper;
-using Dolite.Exceptions;
+using Dolite.Utils;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Dolite.Examples.Controllers;
@@ -11,8 +10,7 @@ namespace Dolite.Examples.Controllers;
 [Route("[controller]")]
 public class DoliteController : ControllerBase
 {
-    public IMapper Mapper { get; init; } = null!;
-    public IConfiguration Configuration { get; init; } = null!;
+    public ExceptionFactory ExceptionFactory { get; init; } = null!;
 
     /// <summary>
     ///     Greet
@@ -33,7 +31,7 @@ public class DoliteController : ControllerBase
     [Route("error")]
     public ActionResult Error(string? errMessage)
     {
-        if (errMessage is not null) throw new BusinessException(101, errMessage);
+        if (errMessage is not null) throw ExceptionFactory.Business(1001, errMessage);
         var a = 1;
         var b = 0;
         return Ok(a / b);

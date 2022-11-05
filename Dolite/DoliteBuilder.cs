@@ -23,6 +23,13 @@ public class DoliteBuilder
         return _components.ContainsKey(typeof(TComponent));
     }
 
+    public TComponent? GetComponent<TComponent>() where TComponent : DoliteComponent
+    {
+        if (!_components.TryGetValue(typeof(TComponent), out var component))
+            return null;
+        return (TComponent) component;
+    }
+
     public DoliteBuilder AddComponent(DoliteComponent component)
     {
         _components.Add(component.GetType(), component);
