@@ -12,7 +12,7 @@ public class AuthComponent : DoliteComponent
     private readonly Action<AuthorizationOptions>? _authorizationConfig;
     private readonly SecurityKey _publicKey;
 
-    public AuthComponent(SecurityKey publicKey, Action<AuthorizationOptions>? authorizationConfig = null)
+    public AuthComponent(SecurityKey publicKey, Action<AuthorizationOptions>? authorizationConfig)
     {
         _publicKey = publicKey;
         _authorizationConfig = authorizationConfig;
@@ -46,9 +46,9 @@ public class AuthComponent : DoliteComponent
 
 public static class AuthComponentExtensions
 {
-    public static DoliteBuilder UseAuth(this DoliteBuilder builder, string keyName)
+    public static DoliteBuilder UseAuth(this DoliteBuilder builder, string keyName, Action<AuthorizationOptions>? authorizationConfig = null)
     {
-        var component = new AuthComponent(KeyManager.Public(keyName));
+        var component = new AuthComponent(KeyManager.Public(keyName), authorizationConfig);
         return builder.AddComponent(component);
     }
 }
