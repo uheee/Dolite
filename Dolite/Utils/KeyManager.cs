@@ -12,15 +12,19 @@ public static class KeyManager
     public static void SetPath(string path)
     {
         _keyPath = path;
+        if (!Directory.Exists(path)) Directory.CreateDirectory(_keyPath);
     }
 
     public static (SecurityKey PrivateKey, SecurityKey PublicKey) Keys(string name)
     {
-        if (!Directory.Exists(KeyPath)) GenKeys(name);
-        var privateContent = File.ReadAllText(Path.Combine(KeyPath, $"{name}_private.pem"));
+        var privateFile = Path.Combine(KeyPath, $"{name}_private.pem");
+        if (!File.Exists(privateFile)) GenerateKeys(name);
+        var privateContent = File.ReadAllText(privateFile);
         var privateKey = ECDsa.Create();
         privateKey.ImportFromPem(privateContent);
-        var publicContent = File.ReadAllText(Path.Combine(KeyPath, $"{name}_public.pem"));
+        var publicFile = Path.Combine(KeyPath, $"{name}_public.pem");
+        if (!File.Exists(publicFile)) GenerateKey(privateKey, name, false);
+        var publicContent = File.ReadAllText(publicFile);
         var publicKey = ECDsa.Create();
         publicKey.ImportFromPem(publicContent);
         return (new ECDsaSecurityKey(privateKey), new ECDsaSecurityKey(publicKey));
@@ -36,18 +40,21 @@ public static class KeyManager
         return Keys(name).PublicKey;
     }
 
-    private static void GenKeys(string name)
+    private static void GenerateKeys(string name)
     {
         var ecdsa = ECDsa.Create();
         ecdsa.GenerateKey(ECCurve.NamedCurves.nistP256);
-        var privateKey = ecdsa.ExportECPrivateKey();
-        var publicKey = ecdsa.ExportSubjectPublicKeyInfo();
-        var privateContent = new string(PemEncoding.Write("EC PRIVATE KEY", privateKey));
-        var publicContent = new string(PemEncoding.Write("PUBLIC KEY", publicKey));
-        Directory.CreateDirectory(KeyPath);
-        var privatePath = Path.Combine(KeyPath, $"{name}_private.pem");
-        var publicPath = Path.Combine(KeyPath, $"{name}_public.pem");
-        File.WriteAllText(privatePath, privateContent);
-        File.WriteAllText(publicPath, publicContent);
+        GenerateKey(ecdsa, name, true);
+        GenerateKey(ecdsa, name, false);
+    }
+
+    private static void GenerateKey(ECDsa ecdsa, string name, bool isPrivate)
+    {
+        var key = isPrivate
+            ? ecdsa.ExportECPrivateKey()
+            : ecdsa.ExportSubjectPublicKeyInfo();
+        var content = new string(PemEncoding.Write(isPrivate ? "EC PRIVATE KEY" : "PUBLIC KEY", key));
+        var path = Path.Combine(KeyPath, $"{name}{(isPrivate ? "_private" : "_public")}.pem");
+        File.WriteAllText(path, content);
     }
 }
