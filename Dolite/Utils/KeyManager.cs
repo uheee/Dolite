@@ -1,13 +1,15 @@
+using System.Collections.Concurrent;
 using System.Security.Cryptography;
 using Microsoft.IdentityModel.Tokens;
 
 namespace Dolite.Utils;
 
-public static class KeyManager
+public class KeyManager
 {
     private static string? _keyPath;
-
     public static string KeyPath => _keyPath ?? throw new Exception("missing key path");
+    public ConcurrentDictionary<string, ECDsaSecurityKey> PrivateKeys { get; } = new();
+    public ConcurrentDictionary<string, ECDsaSecurityKey> PublicKeys { get; } = new();
 
     public static void SetPath(string path)
     {
@@ -15,29 +17,43 @@ public static class KeyManager
         if (!Directory.Exists(path)) Directory.CreateDirectory(_keyPath);
     }
 
-    public static (SecurityKey PrivateKey, SecurityKey PublicKey) Keys(string name)
+    public ECDsaSecurityKey Private(string name)
     {
-        var privateFile = Path.Combine(KeyPath, $"{name}_private.pem");
-        if (!File.Exists(privateFile)) GenerateKeys(name);
-        var privateContent = File.ReadAllText(privateFile);
-        var privateKey = ECDsa.Create();
-        privateKey.ImportFromPem(privateContent);
-        var publicFile = Path.Combine(KeyPath, $"{name}_public.pem");
-        if (!File.Exists(publicFile)) GenerateKey(privateKey, name, false);
-        var publicContent = File.ReadAllText(publicFile);
-        var publicKey = ECDsa.Create();
-        publicKey.ImportFromPem(publicContent);
-        return (new ECDsaSecurityKey(privateKey), new ECDsaSecurityKey(publicKey));
+        if (PrivateKeys.TryGetValue(name, out var securityKey)) return securityKey!;
+        if (!UpdateKey(name, true))
+        {
+            GenerateKeys(name);
+            UpdateKey(name, true);
+            UpdateKey(name, false);
+        }
+
+        PrivateKeys.TryGetValue(name, out securityKey);
+        return securityKey!;
     }
 
-    public static SecurityKey Private(string name)
+    public ECDsaSecurityKey Public(string name)
     {
-        return Keys(name).PrivateKey;
+        if (PublicKeys.TryGetValue(name, out var securityKey)) return securityKey!;
+        if (!UpdateKey(name, false))
+        {
+            GenerateKey(Private(name).ECDsa, name, false);
+            UpdateKey(name, false);
+        }
+
+        PublicKeys.TryGetValue(name, out securityKey);
+        return securityKey!;
     }
 
-    public static SecurityKey Public(string name)
+    private bool UpdateKey(string name, bool isPrivate)
     {
-        return Keys(name).PublicKey;
+        var file = Path.Combine(KeyPath, $"{name}{(isPrivate ? "_private" : "_public")}.pem");
+        if (!File.Exists(file)) return false;
+        var content = File.ReadAllText(file);
+        var key = ECDsa.Create();
+        key.ImportFromPem(content);
+        var securityKey = new ECDsaSecurityKey(key);
+        (isPrivate ? PrivateKeys : PublicKeys).AddOrUpdate(name, securityKey, (_, _) => securityKey);
+        return true;
     }
 
     private static void GenerateKeys(string name)

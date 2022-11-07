@@ -12,6 +12,7 @@ namespace Dolite.Examples.Controllers;
 [Route("[controller]")]
 public class DoliteController : ControllerBase
 {
+    public TokenManager TokenManager { get; init; } = null!;
     public IFreeSql FreeSql { get; init; } = null!;
     public ExceptionFactory ExceptionFactory { get; init; } = null!;
 

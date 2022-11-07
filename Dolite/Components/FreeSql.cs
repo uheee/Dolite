@@ -38,7 +38,7 @@ public static class FreeSqlComponentExtensions
     public static DoliteBuilder UseFreeSql(this DoliteBuilder builder, Assembly assembly,
         string connectionName = "Default", bool autoSync = false, Action<IFreeSql>? configAction = null)
     {
-        var connectionString = builder.Configuration.GetConnectionString(connectionName);
+        var connectionString = builder.WebAppBuilder.Configuration.GetConnectionString(connectionName);
         var component = new FreeSqlComponent(assembly, connectionString, autoSync, configAction);
         return builder.AddComponent(component);
     }

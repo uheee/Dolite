@@ -4,20 +4,27 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace Dolite.Utils;
 
-public static class TokenManager
+public class TokenManager
 {
-    public static string Generate(string keyName, JwtPayload payload)
+    private readonly KeyManager _keyManager;
+
+    public TokenManager(KeyManager keyManager)
     {
-        var privateKey = KeyManager.Private(keyName);
+        _keyManager = keyManager;
+    }
+
+    public string Generate(string keyName, JwtPayload payload)
+    {
+        var privateKey = _keyManager.Private(keyName);
         var credentials = new SigningCredentials(privateKey, SecurityAlgorithms.EcdsaSha256);
         var descriptor = new JwtSecurityToken(new JwtHeader(credentials), payload);
 
         return new JwtSecurityTokenHandler().WriteToken(descriptor);
     }
-    
-    public static string Generate(string keyName, TimeSpan expiration, params Claim[] claims)
+
+    public string Generate(string keyName, TimeSpan expiration, params Claim[] claims)
     {
-        var privateKey = KeyManager.Private(keyName);
+        var privateKey = _keyManager.Private(keyName);
         var credentials = new SigningCredentials(privateKey, SecurityAlgorithms.EcdsaSha256);
         var currentTime = DateTime.Now;
         var expiresTime = currentTime + expiration;

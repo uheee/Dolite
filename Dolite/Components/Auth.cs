@@ -1,3 +1,4 @@
+using Autofac;
 using Dolite.Utils;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -46,9 +47,17 @@ public class AuthComponent : DoliteComponent
 
 public static class AuthComponentExtensions
 {
-    public static DoliteBuilder UseAuth(this DoliteBuilder builder, string keyName, Action<AuthorizationOptions>? authorizationConfig = null)
+    public static DoliteBuilder UseAuth(this DoliteBuilder builder, string keyName,
+        Action<AuthorizationOptions>? authorizationConfig = null)
     {
-        var component = new AuthComponent(KeyManager.Public(keyName), authorizationConfig);
+        var keyManager = new KeyManager();
+        var tokenManager = new TokenManager(keyManager);
+        builder.Inject(b =>
+        {
+            b.RegisterInstance(keyManager).AsSelf().SingleInstance();
+            b.RegisterInstance(tokenManager).AsSelf().SingleInstance();
+        });
+        var component = new AuthComponent(keyManager.Public(keyName), authorizationConfig);
         return builder.AddComponent(component);
     }
 }
