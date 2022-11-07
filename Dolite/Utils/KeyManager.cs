@@ -5,7 +5,7 @@ namespace Dolite.Utils;
 
 public static class KeyManager
 {
-    private static string _keyPath;
+    private static string? _keyPath;
 
     public static string KeyPath => _keyPath ?? throw new Exception("missing key path");
 
