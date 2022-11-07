@@ -64,9 +64,9 @@ public static class DoliteBuilderExtensions
         return builder;
     }
 
-    public static DoliteBuilder Awesome(this DoliteBuilder builder)
+    public static DoliteBuilder Awesome(this DoliteBuilder builder, Assembly assembly)
     {
-        return builder.Inject(b => b.RegisterModule(new AwesomeModule(Assembly.GetExecutingAssembly())));
+        return builder.Inject(b => b.RegisterModule(new AwesomeModule(assembly)));
     }
 }
 

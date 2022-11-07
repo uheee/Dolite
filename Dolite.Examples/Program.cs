@@ -5,7 +5,7 @@ using Dolite.Utils;
 
 KeyManager.SetPath("keys");
 await DoliteBuilder.Init(args)
-    .Awesome()
+    .Awesome(Assembly.GetExecutingAssembly())
     .UseSerilog()
     .UseAutoMapper(Assembly.GetExecutingAssembly())
     .UseLocalization("localization")
