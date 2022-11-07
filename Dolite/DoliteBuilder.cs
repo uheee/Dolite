@@ -5,15 +5,15 @@ namespace Dolite;
 
 public class DoliteBuilder
 {
-    private readonly WebApplicationBuilder _builder;
-    private readonly Dictionary<Type, DoliteComponent> _components = new();
+    public WebApplicationBuilder WebAppBuilder { get; }
+    public Dictionary<Type, DoliteComponent> Components { get; } = new();
 
-    internal DoliteBuilder(WebApplicationBuilder builder)
+    internal DoliteBuilder(WebApplicationBuilder webAppBuilder)
     {
-        _builder = builder;
+        WebAppBuilder = webAppBuilder;
     }
 
-    public IConfiguration Configuration => _builder.Configuration;
+    public IConfiguration Configuration => WebAppBuilder.Configuration;
 
     public static DoliteBuilder Init(string[] args)
     {
@@ -22,27 +22,27 @@ public class DoliteBuilder
 
     public bool HasComponent<TComponent>() where TComponent : DoliteComponent
     {
-        return _components.ContainsKey(typeof(TComponent));
+        return Components.ContainsKey(typeof(TComponent));
     }
 
     public TComponent? GetComponent<TComponent>() where TComponent : DoliteComponent
     {
-        if (!_components.TryGetValue(typeof(TComponent), out var component))
+        if (!Components.TryGetValue(typeof(TComponent), out var component))
             return null;
         return (TComponent) component;
     }
 
     public DoliteBuilder AddComponent(DoliteComponent component)
     {
-        _components.Add(component.GetType(), component);
+        Components.Add(component.GetType(), component);
         return this;
     }
 
     public async Task Done()
     {
-        _components.Values.ToList().ForEach(component => component.BeforeBuild(_builder));
-        var app = _builder.Build();
-        _components.Values.ToList().ForEach(component => component.AfterBuild(app));
+        Components.Values.ToList().ForEach(component => component.BeforeBuild(WebAppBuilder));
+        var app = WebAppBuilder.Build();
+        Components.Values.ToList().ForEach(component => component.AfterBuild(app));
         await app.RunAsync();
     }
 }
