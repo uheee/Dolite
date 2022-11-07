@@ -16,6 +16,7 @@ public class ControllerComponent : DoliteComponent
             options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
             options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
         });
+        builder.Services.AddHttpContextAccessor();
     }
 
     public override void AfterBuild(WebApplication app)
